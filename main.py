@@ -3,10 +3,12 @@ import os
 from dotenv import load_dotenv
 from interactions import Intents
 from interactions.ext.debug_extension import DebugExtension
+from tortoise import run_async
 
 from core.base import CustomClient
 from core.extensions_loader import load_extensions
 from core.init_logging import init_logging
+from core.init_tortoise import init_tortoise
 
 if __name__ == "__main__":
     # load the environmental vars from the .env file
@@ -14,6 +16,9 @@ if __name__ == "__main__":
 
     # initialise logging
     init_logging()
+
+    # initialise tortoise
+    run_async(init_tortoise())
 
     # create our bot instance
     bot = CustomClient(
