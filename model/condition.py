@@ -8,6 +8,6 @@ class Condition(Model):
     id = fields.IntField(pk=True)
     guild = fields.IntField()
     metarole: fields.ForeignKeyRelation[Metarole] = fields.relational.ForeignKeyField(
-        "model.Metarole", to_field="id", on_delete="CASCADE"
+        "models.Metarole", to_field="id", on_delete="CASCADE"
     )
     type = fields.IntEnumField(ConditionType)

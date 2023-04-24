@@ -6,6 +6,7 @@ from interactions import (
     slash_command,
     slash_option,
 )
+from interactions.client.utils import get_all
 
 from core.base import CustomClient
 from model import Condition, ConditionType, Metarole
@@ -60,6 +61,25 @@ class MetaRoleCommand(Extension):
             type=ConditionType.REQUIRED,
         )
         await ctx.send("Metarole created")
+
+    @slash_command(
+        name="metarole",
+        description="Meta-roles management",
+        sub_cmd_name="check",
+        sub_cmd_description="Check for all meta-roles",
+    )
+    async def metarole_check(self, ctx: SlashContext):
+        members = get_all(ctx.guild.members)
+        metaroles = await Metarole.all()
+        for member in members:
+            member_roles = [int(role.id) for role in member.roles]
+            for metarole in metaroles:
+                is_eligible = await metarole.is_eligible(member_roles)
+                if is_eligible and int(metarole.id) not in member_roles:
+                    await member.add_role(metarole.id)
+                if not is_eligible and int(metarole.id) in member_roles:
+                    await member.remove_role(metarole.id)
+        await ctx.send("Check OK")
 
 
 def setup(bot: CustomClient):

@@ -19,14 +19,8 @@ class MemberUpdateEvent(Extension):
         self.bot.logger.debug(f"Role updated : {role_updated}")
         metaroles = await Metarole.filter(conditions__id=role_updated)
         for metarole in metaroles:
-            try:
-                is_eligible = True
-                for condition in await metarole.conditions.all():
-                    self.bot.logger.debug(f"Challenged condition : {condition.id}")
-                    is_eligible = is_eligible and event.after.has_role(condition.id)
-                    self.bot.logger.debug(f"Is still eligible ? {is_eligible}")
-            except NoValuesFetched:
-                is_eligible = False
+            member_roles = [int(role.id) for role in event.after.roles]
+            is_eligible = await metarole.is_eligible(member_roles)
             if is_eligible and not event.after.has_role(metarole.id):
                 self.bot.logger.debug(f"Metarole to add : {metarole.id}")
                 await event.after.add_role(metarole.id)
