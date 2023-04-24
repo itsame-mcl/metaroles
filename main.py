@@ -22,7 +22,9 @@ if __name__ == "__main__":
 
     # create our bot instance
     bot = CustomClient(
-        intents=Intents.DEFAULT,  # intents are what events we want to receive from discord, `DEFAULT` is usually fine
+        intents=Intents.new(
+            default=True, guild_members=True
+        ),  # intents are what events we want to receive from discord, `DEFAULT` is usually fine
         auto_defer=True,  # automatically deferring interactions
         activity="Anaffer bot",  # the status message of the bot
     )
