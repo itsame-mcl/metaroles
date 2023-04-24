@@ -1,12 +1,15 @@
-from core.base import CustomClient
-
 from interactions import (
     Button,
     ButtonStyle,
-    ComponentContext, Embed,
-    Extension, InteractionContext,
-    component_callback, slash_command,
+    ComponentContext,
+    Embed,
+    Extension,
+    InteractionContext,
+    component_callback,
+    slash_command,
 )
+
+from core.base import CustomClient
 
 
 class CommandExtension(Extension):
@@ -18,9 +21,7 @@ class CommandExtension(Extension):
 
         # adds a component to the message
         components = Button(
-            style=ButtonStyle.GREEN,
-            label="Hiya",
-            custom_id="hello_world_button"
+            style=ButtonStyle.GREEN, label="Hiya", custom_id="hello_world_button"
         )
 
         # adds an embed to the message

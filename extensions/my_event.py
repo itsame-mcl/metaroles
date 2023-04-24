@@ -1,7 +1,7 @@
-from core.base import CustomClient
-
-from interactions import listen, Extension
+from interactions import Extension, listen
 from interactions.api.events import ChannelCreate
+
+from core.base import CustomClient
 
 
 class EventExtension(Extension):
