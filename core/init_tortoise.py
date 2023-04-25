@@ -14,4 +14,4 @@ TORTOISE_ORM = {
 async def init_tortoise():
     command = Command(tortoise_config=TORTOISE_ORM, app="models")
     await command.init()
-    await command.migrate()
+    await command.upgrade()

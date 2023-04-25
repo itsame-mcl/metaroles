@@ -2,6 +2,7 @@ from typing import Optional
 
 from interactions import (
     Extension,
+    Member,
     OptionType,
     Permissions,
     Role,
@@ -14,7 +15,7 @@ from interactions import (
 from interactions.client.utils import get, get_all
 
 from core.base import CustomClient
-from models import Condition, Metarole
+from models import Condition, Metarole, Moderation
 
 
 class MetaRoleCommand(Extension):
@@ -32,6 +33,14 @@ class MetaRoleCommand(Extension):
     ) -> Optional[Condition]:
         return await Condition.filter(
             id=condition_id, metarole_id=metarole_id
+        ).get_or_none()
+
+    @staticmethod
+    async def __get_moderation(
+        metarole_id: int, member_id: int
+    ) -> Optional[Moderation]:
+        return await Moderation.filter(
+            member=member_id, metarole_id=metarole_id
         ).get_or_none()
 
     @slash_command(
@@ -61,7 +70,7 @@ class MetaRoleCommand(Extension):
         name="metarole",
         description="Meta-roles management",
         group_name="condition",
-        group_description="Constraints management",
+        group_description="Conditions management",
         sub_cmd_name="add",
         sub_cmd_description="Add a condition to a meta-role",
     )
@@ -73,13 +82,13 @@ class MetaRoleCommand(Extension):
     )
     @slash_option(
         name="condition_role",
-        description="Name of the constraint role",
+        description="Name of the condition role",
         required=True,
         opt_type=OptionType.ROLE,
     )
     @slash_option(
         name="condition_type",
-        description="Type of the constraint",
+        description="Type of the condition",
         required=True,
         opt_type=OptionType.INTEGER,
         choices=[
@@ -156,6 +165,100 @@ class MetaRoleCommand(Extension):
     @slash_command(
         name="metarole",
         description="Meta-roles management",
+        group_name="moderation",
+        group_description="Moderation management",
+        sub_cmd_name="add",
+        sub_cmd_description="Add a moderation rule to a meta-role",
+    )
+    @slash_option(
+        name="meta_role",
+        description="Name of the meta-role",
+        required=True,
+        opt_type=OptionType.ROLE,
+    )
+    @slash_option(
+        name="member",
+        description="Name of the concerned member",
+        required=True,
+        opt_type=OptionType.USER,
+    )
+    @slash_option(
+        name="condition_type",
+        description="Type of the rule",
+        required=True,
+        opt_type=OptionType.INTEGER,
+        choices=[
+            SlashCommandChoice(name="Grant", value=1),
+            SlashCommandChoice(name="Prevent", value=-1),
+        ],
+    )
+    @slash_default_member_permission(Permissions.MANAGE_ROLES)
+    async def metarole_moderation_add(
+        self,
+        ctx: SlashContext,
+        meta_role: Role,
+        member: Member,
+        condition_type: int,
+    ):
+        metarole = await self.__get_metarole(int(ctx.guild.id), int(meta_role.id))
+        if metarole:
+            moderation = await self.__get_moderation(int(meta_role.id), int(member.id))
+            if not moderation:
+                await Moderation.create(
+                    member=int(member.id),
+                    metarole_id=int(meta_role.id),
+                    type=condition_type,
+                )
+                await self.bot.check_metarole(metarole, [member])
+                await ctx.send("Moderation rule added")
+            else:
+                await ctx.send(
+                    f"{member.username} have already a moderation rule on {meta_role.name}"
+                )
+        else:
+            await ctx.send(f"{meta_role.name} is not a meta-role")
+
+    @slash_command(
+        name="metarole",
+        description="Meta-roles management",
+        group_name="moderation",
+        group_description="Moderation management",
+        sub_cmd_name="delete",
+        sub_cmd_description="Delete a moderation rule from a meta-role",
+    )
+    @slash_option(
+        name="meta_role",
+        description="Name of the meta-role",
+        required=True,
+        opt_type=OptionType.ROLE,
+    )
+    @slash_option(
+        name="member",
+        description="Name of the targeted member",
+        required=True,
+        opt_type=OptionType.USER,
+    )
+    @slash_default_member_permission(Permissions.MANAGE_ROLES)
+    async def metarole_moderation_delete(
+        self, ctx: SlashContext, meta_role: Role, member: Member
+    ):
+        metarole = await self.__get_metarole(int(ctx.guild.id), int(meta_role.id))
+        moderation = await self.__get_moderation(int(meta_role.id), int(member.id))
+        if metarole:
+            if moderation:
+                await moderation.delete()
+                await self.bot.check_metarole(metarole, [member])
+                await ctx.send("Moderation rule deleted")
+            else:
+                await ctx.send(
+                    f"{member.username} don't have any moderation rule on {meta_role.name}"
+                )
+        else:
+            await ctx.send(f"{meta_role.name} is not a meta-role")
+
+    @slash_command(
+        name="metarole",
+        description="Meta-roles management",
         sub_cmd_name="enable",
         sub_cmd_description="Enable a meta-role",
     )
@@ -202,7 +305,7 @@ class MetaRoleCommand(Extension):
         name="metarole",
         description="Meta-roles management",
         sub_cmd_name="list",
-        sub_cmd_description="List all meta-roles",
+        sub_cmd_description="List all meta-roles and rulesets",
     )
     @slash_default_member_permission(Permissions.MANAGE_ROLES)
     async def metarole_list(self, ctx: SlashContext):
@@ -219,6 +322,12 @@ class MetaRoleCommand(Extension):
                 list_meta_roles = (
                     list_meta_roles
                     + f"\t- {condition_discord.name}, *{'required' if condition.type == 1 else 'forbidden'}*\n"
+                )
+            for moderation in await metarole.moderations.all():
+                member_discord = get(ctx.guild.members, id=moderation.member)
+                list_meta_roles = (
+                    list_meta_roles
+                    + f"\t-{member_discord.username}, *{'granted' if moderation.type == 1 else 'prevented'}*\n"
                 )
         await ctx.send(list_meta_roles)
 

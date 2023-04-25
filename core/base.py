@@ -24,7 +24,7 @@ class CustomClient(Client):
     async def check_metarole(self, metarole: Metarole, members: list[Member]):
         for member in members:
             member_roles = [int(role.id) for role in member.roles]
-            is_eligible = await metarole.is_eligible(member_roles)
+            is_eligible = await metarole.is_eligible(int(member.id), member_roles)
             if is_eligible and int(metarole.id) not in member_roles:
                 self.logger.debug(f"Metarole to add : {metarole.id}")
                 await member.add_role(metarole.id)
