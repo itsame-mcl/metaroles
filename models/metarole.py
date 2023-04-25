@@ -5,12 +5,13 @@ from tortoise.exceptions import NoValuesFetched
 from tortoise.models import Model
 
 if TYPE_CHECKING:
-    from model import Condition
+    from models import Condition
 
 
 class Metarole(Model):
     id = fields.IntField(pk=True)
     guild = fields.IntField()
+    enabled = fields.BooleanField()
     conditions: fields.ReverseRelation["Condition"]
 
     async def is_eligible(self, member_roles: list[int]):

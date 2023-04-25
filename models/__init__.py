@@ -1,5 +1,6 @@
+from models.enums.condition_type import ConditionType
+
 from .condition import Condition
-from .condition_type import ConditionType
 from .metarole import Metarole
 
 if __name__ == "__main__":
