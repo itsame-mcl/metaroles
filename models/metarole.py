@@ -17,7 +17,12 @@ class Metarole(Model):
     async def is_eligible(self, member_roles: list[int]):
         try:
             required = await self.conditions.filter(type=1).values_list("id", flat=True)
-            if all([role in member_roles for role in required]):
+            forbidden = await self.conditions.filter(type=-1).values_list(
+                "id", flat=True
+            )
+            if all([role in member_roles for role in required]) and not any(
+                [role in member_roles for role in forbidden]
+            ):
                 return True
             return False
         except NoValuesFetched:
