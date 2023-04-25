@@ -1,6 +1,5 @@
 from interactions import Extension, listen
 from interactions.api.events import MemberUpdate
-from interactions.client.utils import get
 
 from core.base import CustomClient
 from models import Metarole
@@ -23,6 +22,4 @@ class MemberUpdateEvent(Extension):
 
 
 def setup(bot: CustomClient):
-    """Let naff load the extension"""
-
     MemberUpdateEvent(bot)
