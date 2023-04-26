@@ -5,6 +5,7 @@ services:
     build:
       context: ./
       dockerfile: ./Dockerfile
+    pull_policy: build
     environment:
       - PROJECT_NAME = Meta-Roles
       - LOAD_DEBUG_COMMANDS = false
