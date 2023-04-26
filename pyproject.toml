@@ -2,10 +2,10 @@
 profile = "black"
 
 [tool.poetry]
-name = "MetaRoles"
-version = "0.1.0"
+name = "Meta-Roles"
+version = "0.1.1"
 description = "A discord bot made with naff."
-authors = ["Your Name <you@example.com>"]
+authors = ["Maxence Lagalle <contact@maxence-lagalle.fr>"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
