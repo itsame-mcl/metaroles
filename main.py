@@ -26,7 +26,7 @@ if __name__ == "__main__":
             default=True, guild_members=True
         ),  # intents are what events we want to receive from discord, `DEFAULT` is usually fine
         auto_defer=True,  # automatically deferring interactions
-        activity="Anaffer bot",  # the status message of the bot
+        activity="Meta-roles manager",  # the status message of the bot
     )
 
     # load the debug extension if that is wanted

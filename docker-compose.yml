@@ -5,9 +5,13 @@ services:
     build:
       context: ./
       dockerfile: ./Dockerfile
+    environment:
+      - PROJECT_NAME = Meta-Roles
+      - LOAD_DEBUG_COMMANDS = false
+      - DISCORD_TOKEN
     volumes:
-      - ./logs:/app/logs
-      - ./data:/app/data
+      - logs:/app/logs
+      - data:/app/data
     networks:
       - metaroles-network
     restart:
@@ -15,3 +19,9 @@ services:
 
 networks:
   metaroles-network:
+
+volumes:
+  data:
+    external: false
+  logs:
+    external: false
