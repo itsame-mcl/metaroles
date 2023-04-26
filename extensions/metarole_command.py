@@ -69,6 +69,27 @@ class MetaRoleCommand(Extension):
     @slash_command(
         name="metarole",
         description="Meta-roles management",
+        sub_cmd_name="delete",
+        sub_cmd_description="Add a meta-role",
+    )
+    @slash_option(
+        name="meta_role",
+        description="Name of the meta-role",
+        required=True,
+        opt_type=OptionType.ROLE,
+    )
+    @slash_default_member_permission(Permissions.MANAGE_ROLES)
+    async def metarole_delete(self, ctx: SlashContext, meta_role: Role):
+        metarole = await self.__get_metarole(int(ctx.guild.id), int(meta_role.id))
+        if metarole:
+            await metarole.delete()
+            await ctx.send("Meta-role delete")
+        else:
+            await ctx.send(f"{meta_role.name} is not a meta-role")
+
+    @slash_command(
+        name="metarole",
+        description="Meta-roles management",
         group_name="condition",
         group_description="Conditions management",
         sub_cmd_name="add",
@@ -340,7 +361,7 @@ class MetaRoleCommand(Extension):
     @slash_default_member_permission(Permissions.MANAGE_ROLES)
     async def metarole_check(self, ctx: SlashContext):
         members = get_all(ctx.guild.members)
-        metaroles = await Metarole.filter(guild=int(ctx.guild.id))
+        metaroles = await Metarole.filter(guild=int(ctx.guild.id), enabled=True)
         for metarole in metaroles:
             await self.bot.check_metarole(metarole, members)
         await ctx.send("Check finished")
