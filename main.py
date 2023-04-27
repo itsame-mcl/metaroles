@@ -27,6 +27,7 @@ if __name__ == "__main__":
         ),  # intents are what events we want to receive from discord, `DEFAULT` is usually fine
         auto_defer=True,  # automatically deferring interactions
         activity="Meta-roles manager",  # the status message of the bot
+        fetch_members=True,
     )
 
     # load the debug extension if that is wanted

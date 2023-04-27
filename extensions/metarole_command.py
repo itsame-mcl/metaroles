@@ -12,7 +12,7 @@ from interactions import (
     slash_default_member_permission,
     slash_option,
 )
-from interactions.client.utils import get, get_all
+from interactions.client.utils import get
 
 from core.base import CustomClient
 from models import Condition, Metarole, Moderation
@@ -294,7 +294,7 @@ class MetaRoleCommand(Extension):
         metarole = await self.__get_metarole(int(ctx.guild.id), int(meta_role.id))
         if metarole:
             await metarole.update_from_dict({"enabled": True}).save()
-            await self.bot.check_metarole(metarole, get_all(ctx.guild.members))
+            await self.bot.check_metarole(metarole, ctx.guild.members)
             await ctx.send("Meta-role enabled")
         else:
             await ctx.send(f"{meta_role.name} is not a meta-role")
@@ -360,7 +360,7 @@ class MetaRoleCommand(Extension):
     )
     @slash_default_member_permission(Permissions.MANAGE_ROLES)
     async def metarole_check(self, ctx: SlashContext):
-        members = get_all(ctx.guild.members)
+        members = ctx.guild.members
         metaroles = await Metarole.filter(guild=int(ctx.guild.id), enabled=True)
         for metarole in metaroles:
             await self.bot.check_metarole(metarole, members)
