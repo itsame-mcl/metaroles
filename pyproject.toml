@@ -3,7 +3,7 @@ profile = "black"
 
 [tool.poetry]
 name = "Meta-Roles"
-version = "0.1.1"
+version = "0.1.2"
 description = "A discord bot made with naff."
 authors = ["Maxence Lagalle <contact@maxence-lagalle.fr>"]
 
