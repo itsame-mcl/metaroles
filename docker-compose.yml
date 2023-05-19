@@ -10,7 +10,7 @@ services:
       - PROJECT_NAME = Meta-Roles
       - LOAD_DEBUG_COMMANDS
       - DISCORD_TOKEN
-      - SENTRY_TOKEN
+      - SENTRY_DSN
     volumes:
       - logs:/app/logs
       - data:/app/data
