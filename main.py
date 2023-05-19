@@ -30,6 +30,10 @@ if __name__ == "__main__":
         fetch_members=True,
     )
 
+    # enable Sentry.io observability if sentry token is provided
+    if os.getenv("SENTRY_TOKEN"):
+        bot.load_extension("interactions.ext.sentry", token=os.getenv("SENTRY_TOKEN"))
+
     # load the debug extension if that is wanted
     if os.getenv("LOAD_DEBUG_COMMANDS") == "true":
         DebugExtension(bot=bot)
