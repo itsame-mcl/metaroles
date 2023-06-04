@@ -1,6 +1,6 @@
 aerich>=0.7.1
-interactions.py>=5.1.0
-orjson>=3.6.7
-python-dotenv>=0.20.0
-sentry-sdk>=1.23.1
+interactions.py>=5.6.0
+orjson>=3.9.0
+python-dotenv>=1.0.0
+sentry-sdk>=1.25.0
 tortoise-orm>=0.19.3
