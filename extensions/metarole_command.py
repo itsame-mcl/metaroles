@@ -332,24 +332,33 @@ class MetaRoleCommand(Extension):
     async def metarole_list(self, ctx: SlashContext):
         list_meta_roles = "**List of meta-roles**:\n\n"
         metaroles = await Metarole.filter(guild=int(ctx.guild.id))
+        flag = False
         for metarole in metaroles:
             metarole_discord = get(ctx.guild.roles, id=metarole.id)
+            if metarole_discord is not None:
+                list_meta_roles = (
+                    list_meta_roles
+                    + f"- **{metarole_discord.name}**, *{'enabled' if metarole.enabled else 'disabled'}*\n"
+                )
+                for condition in await metarole.conditions.all():
+                    condition_discord = get(ctx.guild.roles, id=condition.id)
+                    list_meta_roles = (
+                        list_meta_roles
+                        + f"\t- {condition_discord.name}, *{'required' if condition.type == 1 else 'forbidden'}*\n"
+                    )
+                for moderation in await metarole.moderations.all():
+                    member_discord = get(ctx.guild.members, id=moderation.member)
+                    list_meta_roles = (
+                        list_meta_roles
+                        + f"\t-{member_discord.username}, *{'granted' if moderation.type == 1 else 'prevented'}*\n"
+                    )
+            else:
+                flag = True
+        if flag:
             list_meta_roles = (
                 list_meta_roles
-                + f"- **{metarole_discord.name}**, *{'enabled' if metarole.enabled else 'disabled'}*\n"
+                + "**WARNING** : At least one configuration problem has been detected. Please use the `metarole check` command to fix it.\n"
             )
-            for condition in await metarole.conditions.all():
-                condition_discord = get(ctx.guild.roles, id=condition.id)
-                list_meta_roles = (
-                    list_meta_roles
-                    + f"\t- {condition_discord.name}, *{'required' if condition.type == 1 else 'forbidden'}*\n"
-                )
-            for moderation in await metarole.moderations.all():
-                member_discord = get(ctx.guild.members, id=moderation.member)
-                list_meta_roles = (
-                    list_meta_roles
-                    + f"\t-{member_discord.username}, *{'granted' if moderation.type == 1 else 'prevented'}*\n"
-                )
         await ctx.send(list_meta_roles)
 
     @slash_command(
@@ -363,7 +372,11 @@ class MetaRoleCommand(Extension):
         members = ctx.guild.members
         metaroles = await Metarole.filter(guild=int(ctx.guild.id), enabled=True)
         for metarole in metaroles:
-            await self.bot.check_metarole(metarole, members)
+            metarole_discord = get(ctx.guild.roles, id=metarole.id)
+            if metarole_discord is not None:
+                await self.bot.check_metarole(metarole, members)
+            else:
+                await metarole.delete()
         await ctx.send("Check finished")
 
 

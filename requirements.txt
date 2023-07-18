@@ -1,5 +1,5 @@
 aerich>=0.7.1
-interactions.py>=5.6.0
+interactions.py>=5.8.0
 orjson>=3.9.0
 python-dotenv>=1.0.0
 sentry-sdk>=1.25.0
